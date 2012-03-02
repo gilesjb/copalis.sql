@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Copyright 2010 Giles Burgess
+	
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+	
+	     http://www.apache.org/licenses/LICENSE-2.0
+	
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+-->
+<project basedir="." default="build" name="org.copalis.sql">
+    <property environment="env"/>
+	
+	<property name="release.version" value="0.9"/>
+	
+    <property name="junit.output.dir" value="target/test/junit"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+	
+    <path id="sql.classpath">
+        <pathelement location="target/main/class"/>
+        <pathelement location="target/test/class"/>
+        <pathelement location="target/samples/class"/>
+        <pathelement location="src/samples/jar/mysql.jar"/>
+        <pathelement location="src/test/jar/hsqldb.jar"/>
+        <pathelement location="src/test/jar/junit-4.7.jar"/>
+    </path>
+	
+    <target name="init">
+        <mkdir dir="target/main/class"/>
+        <mkdir dir="target/test/class"/>
+        <mkdir dir="target/samples/class"/>
+        <copy includeemptydirs="false" todir="target/main/class">
+            <fileset dir="src/main/java">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+        <copy includeemptydirs="false" todir="target/test/class">
+            <fileset dir="src/test/java">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+        <copy includeemptydirs="false" todir="target/samples/class">
+            <fileset dir="src/samples/java">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+	
+    <target name="clean">
+        <delete dir="target"/>
+    </target>
+
+	<target depends="clean" name="cleanall"/>
+    <target depends="build-subprojects,build-project" name="build"/>
+    <target name="build-subprojects"/>
+
+	<target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="target/main/class" source="${source}" target="${target}" includeantruntime="false">
+            <src path="src/main/java"/>
+            <classpath refid="sql.classpath"/>
+        </javac>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="target/test/class" source="${source}" target="${target}" includeantruntime="false">
+            <src path="src/test/java"/>
+            <classpath refid="sql.classpath"/>
+        </javac>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="target/samples/class" source="${source}" target="${target}" includeantruntime="false">
+            <src path="src/samples/java"/>
+            <classpath refid="sql.classpath"/>
+        </javac>
+    </target>
+
+	<target name="unit-tests">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr" haltonfailure="true">
+            <formatter type="xml"/>
+            <classpath refid="sql.classpath"/>
+			<batchtest fork="yes" todir="${junit.output.dir}">
+				<fileset dir="src/test/java">
+					<include name="**/*Test.java"/>
+				</fileset>
+			</batchtest>
+        </junit>
+    </target>
+
+    <target name="junit-report">
+        <junitreport todir="${junit.output.dir}">
+            <fileset dir="${junit.output.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${junit.output.dir}"/>
+        </junitreport>
+    </target>
+	
+	<target name="docs" depends="init">
+		<javadoc destdir="target/main/docs" verbose="false">
+			<sourcefiles>
+				<fileset dir="src/main/java">
+					<include name="org/copalis/sql/*.java"/>
+				</fileset>
+			</sourcefiles>
+            <classpath refid="sql.classpath"/>
+		</javadoc>
+	</target>
+
+	<target name="release" depends="clean,build,unit-tests,docs">
+		<jar destfile="target/org.copalis.sql-${release.version}.jar">
+			<fileset dir="target/main/class"/>
+		</jar>
+		<zip destfile="target/org.copalis.sql-${release.version}.src.zip" 
+				basedir="." 
+				excludes=".svn/**,target/**,.settings/**">
+		</zip>
+		<zip destfile="target/org.copalis.sql-${release.version}.docs.zip">
+			<fileset dir="target/main/docs"/>
+		</zip>
+	</target>
+
+	<target name="coffee-sample" depends="build">
+		<java classname="org.copalis.sql.samples.CoffeeBreak">
+            <classpath refid="sql.classpath"/>
+		</java>
+	</target>
+</project>

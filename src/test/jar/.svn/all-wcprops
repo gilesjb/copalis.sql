@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svn/!svn/ver/295/sql/trunk/src/test/jar
+END
+hsqldb.jar
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/295/sql/trunk/src/test/jar/hsqldb.jar
+END
+junit-4.7.jar
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/295/sql/trunk/src/test/jar/junit-4.7.jar
+END
