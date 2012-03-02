@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-	Copyright 2010 Giles Burgess
+	Copyright 2012 Giles Burgess
 	
 	Licensed under the Apache License, Version 2.0 (the "License");
 	you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@
     </target>
 
 	<target depends="clean" name="cleanall"/>
-    <target depends="build-subprojects,build-project" name="build"/>
+    <target depends="build-subprojects,build-project,unit-tests" name="build"/>
     <target name="build-subprojects"/>
 
 	<target depends="init" name="build-project">
