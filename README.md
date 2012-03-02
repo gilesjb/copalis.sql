@@ -3,20 +3,19 @@ The objective is not to shield the programmer from SQL,
 but to add type safety and simplicity to JDBC.
 
 Copalis SQL was inspired by [TMDBC](https://tmdbc.dev.java.net/), but departs from it in these respects:
-  * Uses standard JDBC and is not tied to Postgres
-  * Uses runtime dynamic proxies rather than compile-time code generation
-  * Data access interfaces are wrappers around `ResultSet`, not Java Beans
 
-How it Works
-------------
++ Uses standard JDBC and is not tied to Postgres
++ Uses runtime dynamic proxies rather than compile-time code generation
++ Data access interfaces are wrappers around `ResultSet`, not Java Beans
+
+### How it Works
 
 The idea is that you define an interface containing database access methods,
 and annotate them with the SQL commands that should be executed when they are invoked.
 Copalis SQL will generate an implementation of the interface that performs all the necessary
 parameter and result set wrapping.
 
-A Simple Query
---------------
+### A Simple Query
 
     interface AddressSession extends Session {
         @Query("select ZIP from ADDRESSES where NAME=$1") String zipCode(String name);
@@ -36,8 +35,7 @@ An instance of `AddressSession` is created and used as follows:
 
 Once the `AddressSession` is no longer needed, it is closed using the `close` method inherited from `Session`.
 
-A Less Simple Query
--------------------
+### A Less Simple Query
 
 Most of the time when we perform a SQL SELECT,
 we may get more than one record,
