@@ -7,5 +7,5 @@
 	<classpathentry kind="lib" path="src/test/jar/hsqldb.jar"/>
 	<classpathentry kind="lib" path="src/test/jar/junit-4.7.jar"/>
 	<classpathentry kind="lib" path="src/samples/jar/mysql.jar"/>
-	<classpathentry kind="output" path="target/class"/>
+	<classpathentry kind="output" path="eclipse-bin"/>
 </classpath>
