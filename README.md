@@ -1,8 +1,8 @@
-Copalis SQL is a toolkit designed to make mapping from SQL to Java as easy as possible.
+copalis.sql is a toolkit designed to make mapping from SQL to Java as easy as possible.
 The objective is not to shield the programmer from SQL,
 but to add type safety and simplicity to JDBC.
 
-Copalis SQL was inspired by [TMDBC](https://tmdbc.dev.java.net/), but departs from it in these respects:
+copalis.sql was inspired by [TMDBC](https://tmdbc.dev.java.net/), but departs from it in these respects:
 
 + Uses standard JDBC and is not tied to Postgres
 + Uses runtime dynamic proxies rather than compile-time code generation
@@ -12,7 +12,7 @@ Copalis SQL was inspired by [TMDBC](https://tmdbc.dev.java.net/), but departs fr
 
 The idea is that you define an interface containing database access methods,
 and annotate them with the SQL commands that should be executed when they are invoked.
-Copalis SQL will generate an implementation of the interface that performs all the necessary
+copalis.sql will generate an implementation of the interface that performs all the necessary
 parameter and result set wrapping.
 
 ### A Simple Query
@@ -40,7 +40,7 @@ Once the `AddressSession` is no longer needed, it is closed using the `close` me
 Most of the time when we perform a SQL SELECT,
 we may get more than one record,
 and want to read multiple fields.
-To do this in Copalis SQL,
+To do this in copalis.sql,
 define an interface extending `Results` for accessing the field values:
 
     interface Addresses extends Results {
