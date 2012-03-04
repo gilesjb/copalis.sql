@@ -84,6 +84,18 @@ public class Connecting<T extends Session> implements Connector {
 	public final T open() throws DataException {
 		return wrapper.wrap(connect());
 	}
+	
+    /**
+     * Opens a {@link Connection} to the database,
+     * and wraps it with an instance of the data connection interface
+     * 
+     * @param iface a {@link Class} object for an interface derived from {@link Session}
+     * @return a new instance of the data connection interface
+     * @throws DataException
+     */
+	public final <C extends Session> C open(Class<C> iface) {
+	    return as(iface).open();
+	}
 
 	/**
 	 * Executes a {@link Session.Command}.
