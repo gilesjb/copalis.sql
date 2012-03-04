@@ -2,13 +2,7 @@ copalis.sql is a toolkit designed to make mapping from SQL to Java as easy as po
 The objective is not to shield the programmer from SQL,
 but to add type safety and simplicity to JDBC.
 
-copalis.sql was inspired by [TMDBC](https://tmdbc.dev.java.net/), but departs from it in these respects:
-
-+ Uses standard JDBC and is not tied to Postgres
-+ Uses runtime dynamic proxies rather than compile-time code generation
-+ Data access interfaces are wrappers around `ResultSet`, not Java Beans
-
-### How it Works
+### What it Does
 
 The idea is that you define an interface containing database access methods,
 and annotate them with the SQL commands that should be executed when they are invoked.
@@ -65,3 +59,11 @@ which can be iterated over as follows:
         addrs.close();
 
 The `next()` and `close()` methods are inherited from the `Results` interface.
+
+### Credits
+
+copalis.sql was inspired by [TMDBC](https://tmdbc.dev.java.net/), but departs from it in these respects:
+
++ Uses standard JDBC and is not tied to Postgres
++ Uses runtime dynamic proxies rather than compile-time code generation
++ Data access interfaces are wrappers around `ResultSet`, not Java Beans
