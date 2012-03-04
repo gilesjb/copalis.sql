@@ -5,7 +5,8 @@ annotate it with a SQL query,
 and there was a toolkit that would generate an implementation for you?
 
     interface QuerySession extends Session {
-        @Query("select ZIP from ADDRESSES where NAME=$1") String zipCode(String name);
+        @Query("select ZIP from ADDRESSES where NAME=$1")
+        String zipCode(String name);
     }
     
     public static void main(String[] args] {
@@ -16,11 +17,11 @@ and there was a toolkit that would generate an implementation for you?
 
 ### A Less Simple Query
 
-Most of the time when we perform a SQL SELECT,
+When we perform a SQL SELECT,
 we may get more than one record,
-and want to read multiple fields.
-To do this in copalis.sql,
-define an interface extending `Results` for accessing the field values:
+or read multiple fields.
+Define an interface with accessors for the field values,
+and return it from the query method:
 
     interface Addresses extends Results {
         String name();
@@ -31,7 +32,8 @@ define an interface extending `Results` for accessing the field values:
     }
     
     interface AddrSession extends Session {
-        @Query("select * from ADDRESSES where NAME=$1") Addresses forName(String name);
+        @Query("select * from ADDRESSES where NAME=$1")
+        Addresses forName(String name);
     }
 
     public static void main(String[] args] {
