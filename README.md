@@ -10,7 +10,7 @@ and there was a toolkit that would generate an implementation for you?
     }
     
     public static void main(String[] args] {
-        QuerySession session = Connecting.to("jdbc://my-database").as(QuerySession.class).open();
+        QuerySession session = Connecting.to("jdbc://my-database").open(QuerySession.class);
         System.out.println("Smith's zip code is: " + session.zipCode("Smith"));
         session.close();
     }
@@ -37,7 +37,7 @@ and return it from the query method:
     }
 
     public static void main(String[] args] {
-        AddrSession session = Connecting.to("jdbc://my-database").as(AddrSession.class).open();
+        AddrSession session = Connecting.to("jdbc://my-database").open(AddrSession.class);
         Addresses addrs = session.forName("Jones");
         while (addrs.next()) {
             System.out.println(addrs.name() + " lives in city: " + addrs.city());
