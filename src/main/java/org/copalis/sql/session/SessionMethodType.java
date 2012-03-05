@@ -37,7 +37,7 @@ import org.copalis.sql.results.SelectResultSetWrapper;
 
 public enum SessionMethodType {
 	SIMPLE_SELECT {
-		protected SessionMethod.Connector create(Method method, Connection connection) throws SQLException {
+		protected SessionMethod.Binder create(Method method, Connection connection) throws SQLException {
 			final Query query = method.getAnnotation(Query.class);
 			Class<?> ret = method.getReturnType();
 			if (query == null || Results.class.isAssignableFrom(ret)) return null;
@@ -63,7 +63,7 @@ public enum SessionMethodType {
 	},
 	SELECT {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		protected SessionMethod.Connector create(final Method method, Connection connection) throws SQLException {
+		protected SessionMethod.Binder create(final Method method, Connection connection) throws SQLException {
 			final Query query = method.getAnnotation(Query.class);
 			Class<?> ret = method.getReturnType();
 			if (query == null || !query.value().toUpperCase().startsWith("SELECT ")) return null;
@@ -75,7 +75,7 @@ public enum SessionMethodType {
 	},
 	INFERRED_SELECT {
 		@SuppressWarnings("unchecked")
-		protected SessionMethod.Connector create(final Method method, Connection connection) throws SQLException {
+		protected SessionMethod.Binder create(final Method method, Connection connection) throws SQLException {
 			Query query = method.getAnnotation(Query.class);
 			Class<?> ret = method.getReturnType();
 			if (query == null || !Results.class.isAssignableFrom(ret)) return null;
@@ -87,7 +87,7 @@ public enum SessionMethodType {
 		}
 	},
 	UPDATE {
-		protected SessionMethod.Connector create(final Method method, Connection connection) throws SQLException {
+		protected SessionMethod.Binder create(final Method method, Connection connection) throws SQLException {
 			final Update update = method.getAnnotation(Update.class);
 			if (update == null) return null;
 
@@ -103,8 +103,8 @@ public enum SessionMethodType {
 			}
 			final String name = name();
 			
-			return new SessionMethod.Connector() {
-				public SessionMethod connect(Connection connection) throws SQLException {
+			return new SessionMethod.Binder() {
+				public SessionMethod bind(Connection connection) throws SQLException {
 					final PreparedStatement[] stmts = new PreparedStatement[ps.length];
 					for (int i = 0; i < ps.length; i++) {
 						stmts[i] = connection.prepareStatement(ps[i].text(), update.returnGeneratedKey()?
@@ -138,14 +138,15 @@ public enum SessionMethodType {
 		}
 	};
 
-	protected abstract SessionMethod.Connector create(Method method, Connection connection) throws SQLException;
+	protected abstract SessionMethod.Binder create(Method method, Connection connection) throws SQLException;
 	
-	private SessionMethod.Connector queryMethod(final Method method, final Query query,
+	private SessionMethod.Binder queryMethod(final Method method, final Query query,
 			final ParameterizedStatement ps, final ResultSetWrapper<?> wrapper) {
-		return new SessionMethod.Connector() {
-			public SessionMethod connect(Connection connection) throws SQLException {
+		return new SessionMethod.Binder() {
+			public SessionMethod bind(Connection connection) throws SQLException {
 				final PreparedStatement stmt = connection.prepareStatement(
-						ps.text(), query.type(), query.updatable()?
+						ps.text(), query.type(),
+						Results.Updatable.class.isAssignableFrom(method.getReturnType())?
 								ResultSet.CONCUR_UPDATABLE : ResultSet.CONCUR_READ_ONLY);
 				stmt.setFetchSize(query.fetchSize());
 				return new SessionMethod() {
@@ -165,10 +166,10 @@ public enum SessionMethodType {
 		return name();
 	}
 	
-	public static SessionMethod.Connector forMethod(Method method, Connection connection) throws SQLException {
+	public static SessionMethod.Binder forMethod(Method method, Connection connection) throws SQLException {
 		for (SessionMethodType gen : values()) {
 			try {
-				SessionMethod.Connector dm = gen.create(method, connection);
+				SessionMethod.Binder dm = gen.create(method, connection);
 				if (dm != null) return dm;
 			} catch (RuntimeException e) {
 				throw new RuntimeException(gen.name() + ' ' + Name.of(method) + ": " + e.getMessage(), e);

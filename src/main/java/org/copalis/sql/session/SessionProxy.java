@@ -29,13 +29,13 @@ import org.copalis.sql.common.Name;
 
 public class SessionProxy implements InvocationHandler, Session {
 	private final Connection connection;
-	private final Map<Method, SessionMethod.Connector> methods;
+	private final Map<Method, SessionMethod.Binder> methods;
 
 	private final Map<Method, SessionMethod> executors = 
 			new HashMap<Method, SessionMethod>();
 	
 	public static <C extends Session> C proxy(
-			Class<C> type, Map<Method, SessionMethod.Connector> methods, Connection connection) {
+			Class<C> type, Map<Method, SessionMethod.Binder> methods, Connection connection) {
 		return type.cast(Proxy.newProxyInstance(
 				SessionProxy.class.getClassLoader(), new Class<?>[] {type}, new SessionProxy(
 						connection, methods)));
@@ -45,7 +45,7 @@ public class SessionProxy implements InvocationHandler, Session {
 		this(connection, null);
 	}
 	
-	public SessionProxy(Connection connection, Map<Method, SessionMethod.Connector> methods) {
+	public SessionProxy(Connection connection, Map<Method, SessionMethod.Binder> methods) {
 		this.connection = connection;
 		this.methods = methods;
 	}
@@ -57,7 +57,7 @@ public class SessionProxy implements InvocationHandler, Session {
 			SessionMethod exec = executors.get(method);
 			try {
 				if (exec == null) {
-					exec = methods.get(method).connect(connection);
+					exec = methods.get(method).bind(connection);
 					executors.put(method, exec);
 				}
 				return exec.execute(args);

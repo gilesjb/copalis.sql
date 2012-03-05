@@ -57,9 +57,6 @@ public class ResultsPropertyTest extends TestCase {
 			public ResultSet results() {
 				throw new UnsupportedOperationException();
 			}
-			public void updateRow() throws DataException {
-				throw new UnsupportedOperationException();
-			}
 		};
 		
 		for (ResultsProperty property : properties) {

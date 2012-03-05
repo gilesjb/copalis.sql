@@ -37,7 +37,7 @@ import com.sun.tools.example.debug.bdi.MethodNotFoundException;
  *
  * @author gilesjb
  */
-public class ResultsProxyInvoker implements InvocationHandler, Results {
+public class ResultsProxyInvoker implements InvocationHandler, Results, Results.Updatable {
 
 	public interface Handler {
 		Object invoke(ResultSet results, Object proxy, Object[] args) throws SQLException;
@@ -108,7 +108,9 @@ public class ResultsProxyInvoker implements InvocationHandler, Results {
 	}
 
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-		if (method.getDeclaringClass().isAssignableFrom(Results.class)) return method.invoke(this, args);
+		if (method.getDeclaringClass().isAssignableFrom(Results.Updatable.class)) {
+		    return method.invoke(this, args);
+		}
 		
 		try {
 			return handler(method).invoke(results, proxy, args);

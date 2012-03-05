@@ -24,6 +24,7 @@ import javax.sql.DataSource;
 import org.copalis.sql.Session.Command;
 import org.copalis.sql.common.Finalizer;
 import org.copalis.sql.session.ConnectionWrapper;
+import org.copalis.sql.session.Connector;
 
 /**
  * A factory that instantiates {@link Session} interfaces.

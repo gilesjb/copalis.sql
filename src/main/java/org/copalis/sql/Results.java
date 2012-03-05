@@ -27,18 +27,17 @@ import java.sql.ResultSet;
  * Each instance wraps a {@link ResultSet}. 
  * <p>
  * Every method in an interface derived from {@link Results}
- * must be a <i>Getter</i>, <i>Setter</i> or <i>Qualifier</i>.
+ * must be a <i>Getter</i> or <i>Qualifier</i>.
  * <p>
  * Unless it has an {@link As} annotation,
  * the name of a method indicates the name of the property it refers to.
- * Getters and setters do <i>not</i> use the JavaBean convention
- * of prefixing a property name with {@code get}, {@code set} or {@code is} to indicate the action.
+ * Getters do <i>not</i> use the JavaBean convention
+ * of prefixing a property name with {@code get} or {@code is} to indicate the action.
  * Instead, a method's behavior is determined by its return type and parameters:
  * <p>
  * <table>
  * <tr>
  * <th>Method action</th><th>Return type</th><th>Parameters</th>
- * <tr><td>Setter</td><td>{@code void} or <i>declaring-interface</i></td>
  * <td>{@code (}<i>field-type</i>{@code value)}</td></tr>
  * <tr><td>Getter</td><td><i>field-type</i></td><td>{@code ()}</td></tr>
  * <tr><td>Qualifier</td><td><i>{@link Results} interface</i></td><td>{@code ()}</td></tr>
@@ -50,13 +49,7 @@ import java.sql.ResultSet;
  * the qualifier's property name and a '.' character.
  * This is useful for referencing fully-qualified field names in a multi-table join.
  * <p>
- * A setter that returns its declaring interface will return the object it was invoked on;
- * this allows chained setter calls.
- * <p>
- * The <i>field-type</i> of a getter must be assignable from the field column class,
- * and a setter's <i>field-type</i> must be assignable to the field column class.
- * Also, if both getter and setter methods are declared for a field,
- * their <i>field-type</i>s must be the same.
+ * The <i>field-type</i> of a getter must be assignable from the field column class.
  * 
  * @author gilesb
  * @see java.sql.ResultSet
@@ -100,18 +93,43 @@ public interface Results {
 	boolean next() throws DataException;
 	
 	/**
-	 * Updates the database with the new contents of the current row
-	 * by calling {@link ResultSet#updateRow()}
-	 * on the underlying result set
-	 * 
-	 * @throws DataException
-	 */
-	void updateRow() throws DataException;
-	
-	/**
 	 * Closes the underlying {@link ResultSet}
 	 * 
 	 * @throws DataException
 	 */
 	void close() throws DataException;
+	
+	/**
+	 * An extension of {@link Results} that supports updates to rows.
+	 * <p>
+	 * In addition to <i>Getter</i> and <i>Qualifier</i> methods,
+	 * interfaces derived from {@link Updatable} may also contain <i>Setter</i> methods.
+     * <p>
+     * <table>
+     * <tr>
+     * <th>Method action</th><th>Return type</th><th>Parameters</th>
+     * <tr><td>Setter</td><td>{@code void} or <i>declaring-interface</i></td>
+     * <td>{@code (}<i>field-type</i> {@code value)}</td></tr>
+     * </table>
+     * <p>
+     * A setter that returns its declaring interface will return the object it was invoked on;
+     * this allows chained setter calls.
+	 * <p>
+     * A setter's <i>field-type</i> must be assignable to the field column class.
+     * Also, if both getter and setter methods are declared for a field,
+     * their <i>field-type</i>s must be the same.
+	 */
+	public interface Updatable extends Results {
+	    /**
+	     * Updates the database with the new contents of the current row
+	     * by calling {@link ResultSet#updateRow()}
+	     * on the underlying result set
+	     * 
+	     * @throws DataException
+	     */
+	    void updateRow() throws DataException;
+	}
+	
+	public static final Class<?>[] INTERFACES = {
+	        Results.class, Results.Updatable.class};
 }

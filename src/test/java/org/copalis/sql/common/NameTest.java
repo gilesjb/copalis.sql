@@ -1,5 +1,5 @@
 /*
- *  Copyright 2010 Giles Burgess
+ *  Copyright 2011 Giles Burgess
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,22 +15,21 @@
  */
 package org.copalis.sql.common;
 
-import java.lang.reflect.Method;
+import java.io.IOException;
+
+import junit.framework.TestCase;
 
 /**
  * @author gilesjb
+ *
  */
-public class Name {
-	public static String of(Method method) {
-		if (method == null) return "null";
-		String name = method.toString();
-		if (name.contains(" throws")) {
-		    name = name.substring(0, name.indexOf(" throws"));
-		}
-		return name.substring(name.lastIndexOf(' ') + 1);
-	}
-	
-	public static String of(Class<?> type) {
-		return type.getCanonicalName();
-	}
+public class NameTest extends TestCase {
+    
+    public interface Iface {
+        void a() throws IOException;
+    }
+
+    public void testMethodName() throws SecurityException, NoSuchMethodException {
+        assertEquals("org.copalis.sql.common.NameTest$Iface.a()", Name.of(Iface.class.getMethod("a")));
+    }
 }

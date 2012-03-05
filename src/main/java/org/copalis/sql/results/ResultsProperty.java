@@ -16,10 +16,13 @@
 package org.copalis.sql.results;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.copalis.sql.Results;
 import org.copalis.sql.Results.As;
@@ -41,7 +44,10 @@ import org.copalis.sql.common.Name;
  * @see org.copalis.sql.Results.As
  */
 public class ResultsProperty {
-	
+    
+    private static final Set<Class<?>> RESULTS_INTERFACES = 
+            new HashSet<Class<?>>(Arrays.asList(Results.INTERFACES));
+    
 	private enum Type {
 		INHERITED,
 		GETTER {
@@ -61,7 +67,7 @@ public class ResultsProperty {
 		}
 		
 		static Type of(Method method) {
-			if (method.getDeclaringClass().isAssignableFrom(Results.class)) return INHERITED;
+			if (RESULTS_INTERFACES.contains(method.getDeclaringClass())) return INHERITED;
 
 			int args = method.getParameterTypes().length;
 			Class<?> returns = method.getReturnType();

@@ -19,12 +19,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * Handles execution of the method
+ * Handles execution of a user-defined Session method
  */
 public interface SessionMethod {
 	public Object execute(Object[] args) throws SQLException;
 	
-	public interface Connector {
-		SessionMethod connect(Connection connection) throws SQLException;
+	public interface Binder {
+		SessionMethod bind(Connection connection) throws SQLException;
 	}
 }

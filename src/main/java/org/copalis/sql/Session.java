@@ -101,12 +101,6 @@ public interface Session {
 	    int type() default ResultSet.TYPE_FORWARD_ONLY;
 	    
 	    /**
-	     * A concurrency type;
-	     * If true, indicates that the Results returned by this method should be updatable
-	     */
-	    boolean updatable() default false;
-	    
-	    /**
 	     * Gives the JDBC driver a hint as to the number of rows that should 
 	     * be fetched from the database when more rows are needed.
 	     * If the value specified is zero, then the hint is ignored.
