@@ -15,8 +15,6 @@
  */
 package org.copalis.sql;
 
-import java.sql.ResultSet;
-
 import junit.framework.TestCase;
 
 import org.copalis.sql.results.ResultsProperty;
@@ -32,10 +30,12 @@ public class ResultsPropertyTest extends TestCase {
 		String bar(); void bar(String val);
 	}
 	
+	abstract class FooImpl extends MockResults implements FooBar {}
+	
 	public void testGetProperties() throws Exception {
 		ResultsProperty[] properties = ResultsProperty.properties(FooBar.class);
 		
-		FooBar fb = new FooBar() {
+		FooBar fb = new FooImpl() {
 			public String bar() {
 				return "bar";
 			}
@@ -47,15 +47,6 @@ public class ResultsPropertyTest extends TestCase {
 			}
 			public void foo(int val) {
 				assertEquals(foo(), val);
-			}
-			public void close() throws DataException {
-				throw new UnsupportedOperationException();
-			}
-			public boolean next() throws DataException {
-				throw new UnsupportedOperationException();
-			}
-			public ResultSet results() {
-				throw new UnsupportedOperationException();
 			}
 		};
 		
