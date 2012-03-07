@@ -13,10 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.copalis.sql;
+package org.copalis.sql.results;
 
 import junit.framework.TestCase;
 
+import org.copalis.sql.MockResults;
+import org.copalis.sql.Results;
 import org.copalis.sql.results.ResultsProperty;
 
 /**
