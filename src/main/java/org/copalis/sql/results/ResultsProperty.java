@@ -49,79 +49,101 @@ public class ResultsProperty {
             new HashSet<Class<?>>(Arrays.asList(Results.INTERFACES));
     
 	private enum Type {
-		INHERITED,
+		INHERITED {
+            boolean isTypeOf(Method method) {
+                return RESULTS_INTERFACES.contains(method.getDeclaringClass());
+            }
+        },
 		GETTER {
+            boolean isTypeOf(Method method) {
+                return method.getParameterTypes().length == 0 &&
+                        method.getReturnType() != void.class &&
+                        !Results.class.isAssignableFrom(method.getReturnType());
+            }
+            
 			@Override public ResultsProperty property(String name, Method method, ResultsProperty existing) {
 				return new ResultsProperty(name, method, existing == null? null : existing.setter());
 			}
 		},
 		SETTER {
+		    boolean isTypeOf(Method method) {
+                return method.getParameterTypes().length == 1 &&
+                        (method.getReturnType() == void.class ||
+                        Results.class.isAssignableFrom(method.getReturnType()));
+		    }
+		    
 			@Override public ResultsProperty property(String name, Method method, ResultsProperty existing) {
 				return new ResultsProperty(name, existing == null? null : existing.getter(), method);
 			}
 		},
-		QUALIFIER;
+		QUALIFIER {
+            boolean isTypeOf(Method method) {
+                return method.getParameterTypes().length == 0 &&
+                        method.getReturnType().isInterface() &&
+                        Results.class.isAssignableFrom(method.getReturnType());
+            }
+        };
+		
+		abstract boolean isTypeOf(Method method);
 		
 		ResultsProperty property(String name, Method method, ResultsProperty existing) {
 			return existing;
 		}
 		
 		static Type of(Method method) {
-			if (RESULTS_INTERFACES.contains(method.getDeclaringClass())) return INHERITED;
-
-			int args = method.getParameterTypes().length;
-			Class<?> returns = method.getReturnType();
-			boolean isResults = Results.class.isAssignableFrom(returns);
-			
-			if (args == 0 && returns != void.class && !isResults) return GETTER;
-			if (args == 1 && (returns == void.class || isResults)) return SETTER;
-			if (args == 0 && returns.isInterface() && isResults) return QUALIFIER;
-
-			throw new IllegalArgumentException(Name.of(method) + " is not a valid Results method");
+		    for (Type type : Type.values()) {
+		        if (type.isTypeOf(method)) return type;
+		    }
+		    
+			throw new UnsupportedOperationException(Name.of(method) + " is not a valid Results method");
 		}
 	}
 
 	private final Method getter, setter;
 	private final String name;
 	
+	ResultsProperty(String name, Method getter, Method setter) {
+	    this.name = name;
+	    if (getter != null && setter != null && getter.getReturnType() != setter.getParameterTypes()[0]) {
+	        throw new IllegalArgumentException("Getter for \"" + name + "\" must return same type that setter accepts");
+	    }
+	    this.getter = getter;
+	    this.setter = setter;
+	}
+	
 	public Method getter() {
 		return getter;
 	}
 	
+	public Method setter() {
+	    return setter;
+	}
+	
+	public String name() {
+	    return name;
+	}
+	
+	/**
+	 * Verifies that the property is compatible with a value type
+	 * @param type
+	 */
 	public void validateTypes(Class<?> type) {
 		final Class<?> boxed = FieldType.wrapperType(type);
 		
 		if (getter != null) {
 			Class<?> gets = getter.getReturnType();
 			if (!FieldType.wrapperType(gets).isAssignableFrom(boxed)) {
-				throw new ClassCastException(Name.of(getter) + " return type incompatible with \"" + name + 
+				throw new IllegalArgumentException(Name.of(getter) + " return type incompatible with \"" + name + 
 						"\" type: " + Name.of(type));
 			}
 		}
 		if (setter != null) {
 			Class<?> sets = setter.getParameterTypes()[0];
 			if (!boxed.isAssignableFrom(FieldType.wrapperType(sets))) {
-				throw new ClassCastException(Name.of(setter) + " parameter type incompatible with \"" + name + 
+				throw new IllegalArgumentException(Name.of(setter) + " parameter type incompatible with \"" + name + 
 						"\" type: " + Name.of(type));
 			}
 		}
-	}
-	
-	public Method setter() {
-		return setter;
-	}
-	
-	public String name() {
-		return name;
-	}
-	
-	ResultsProperty(String name, Method getter, Method setter) {
-		this.name = name;
-		if (getter != null && setter != null && getter.getReturnType() != setter.getParameterTypes()[0]) {
-			throw new IllegalArgumentException("Getter for \"" + name + "\" must return same type that setter accepts");
-		}
-		this.getter = getter;
-		this.setter = setter;
 	}
 	
 	public static ResultsProperty[] properties(Class<? extends Results> type) {
@@ -140,7 +162,7 @@ public class ResultsProperty {
 		List<Method> methods = new LinkedList<Method>();
 		
 		for (Method method : type.getMethods()) {
-			if (Type.of(method) == Type.QUALIFIER) {
+		    if (Type.QUALIFIER.isTypeOf(method)) {
 				methods.add(method);
 			}
 		}

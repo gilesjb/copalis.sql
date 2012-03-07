@@ -59,6 +59,8 @@ public class ResultsPropertyTest extends TestCase {
 			}
 		};
 		
+		assertEquals(2, properties.length);
+		
 		for (ResultsProperty property : properties) {
 			property.setter().invoke(fb, property.getter().invoke(fb));
 		}
@@ -72,7 +74,7 @@ public class ResultsPropertyTest extends TestCase {
 		try {
 			ResultsProperty.properties(Wrong.class);
 			fail();
-		} catch (IllegalArgumentException e) {
+		} catch (UnsupportedOperationException e) {
 			return;
 		}
 	}
