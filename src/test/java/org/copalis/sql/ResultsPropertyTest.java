@@ -62,7 +62,7 @@ public class ResultsPropertyTest extends TestCase {
 		assertEquals(2, properties.length);
 		
 		for (ResultsProperty property : properties) {
-			property.setter().invoke(fb, property.getter().invoke(fb));
+			property.setter.invoke(fb, property.getter.invoke(fb));
 		}
 	}
 	

@@ -50,21 +50,19 @@ public class SelectResultSetWrapper<C extends Results> implements ResultSetWrapp
 		}
 		
 		for (final ResultsProperty property : properties) {
-			final Integer i = cols.get(property.name().toLowerCase());
+			final Integer i = cols.get(property.name.toLowerCase());
 			if (i == null) {
-				throw new IllegalArgumentException("No column named: " + property.name());
+				throw new IllegalArgumentException("No column named: " + property.name);
 			}
 			
 			property.validateTypes(FieldType.forClassName(meta.getColumnClassName(i)));
 			
-			Method getter = property.getter();
-			if (getter != null) {
-				handlers.put(getter, new ResultsProxyInvoker.Getter(property.name(), i));
+			if (property.getter != null) {
+				handlers.put(property.getter, new ResultsProxyInvoker.Getter(property.name, i));
 			}
 			
-			Method setter = property.setter();
-			if (setter != null) {
-				handlers.put(setter, new ResultsProxyInvoker.Setter(i));
+			if (property.setter != null) {
+				handlers.put(property.setter, new ResultsProxyInvoker.Setter(i));
 			}
 		}
 	}

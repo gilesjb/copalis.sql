@@ -109,14 +109,12 @@ public class PropertiesResultSetWrapper<T extends Results> implements ResultSetW
 			}
 		});
 		
-		Method getter = property.getter();
-		if (getter != null) {
-			handlers.put(getter, new ResultsProxyInvoker.Getter(property.name(), index));
+		if (property.getter != null) {
+			handlers.put(property.getter, new ResultsProxyInvoker.Getter(property.name, index));
 		}
 		
-		Method setter = property.setter();
-		if (setter != null) {
-			handlers.put(setter, new ResultsProxyInvoker.Setter(index));
+		if (property.setter != null) {
+			handlers.put(property.setter, new ResultsProxyInvoker.Setter(index));
 		}
 	}
 	
@@ -143,7 +141,7 @@ public class PropertiesResultSetWrapper<T extends Results> implements ResultSetW
 	private void propertyNames(StringBuilder str, String prefix) {
 		String separator = "";
 		for (ResultsProperty property : properties) {
-			str.append(separator).append(prefix).append(property.name());
+			str.append(separator).append(prefix).append(property.name);
 			separator = ",";
 		}
 		for (Map.Entry<Method, PropertiesResultSetWrapper<?>> entry : subProxies.entrySet()) {

@@ -62,7 +62,7 @@ public class ResultsProperty {
             }
             
 			@Override public ResultsProperty property(String name, Method method, ResultsProperty existing) {
-				return new ResultsProperty(name, method, existing == null? null : existing.setter());
+				return new ResultsProperty(name, method, existing == null? null : existing.setter);
 			}
 		},
 		SETTER {
@@ -73,7 +73,7 @@ public class ResultsProperty {
 		    }
 		    
 			@Override public ResultsProperty property(String name, Method method, ResultsProperty existing) {
-				return new ResultsProperty(name, existing == null? null : existing.getter(), method);
+				return new ResultsProperty(name, existing == null? null : existing.getter, method);
 			}
 		},
 		QUALIFIER {
@@ -99,8 +99,8 @@ public class ResultsProperty {
 		}
 	}
 
-	private final Method getter, setter;
-	private final String name;
+	public final Method getter, setter;
+	public final String name;
 	
 	ResultsProperty(String name, Method getter, Method setter) {
 	    this.name = name;
@@ -109,18 +109,6 @@ public class ResultsProperty {
 	    }
 	    this.getter = getter;
 	    this.setter = setter;
-	}
-	
-	public Method getter() {
-		return getter;
-	}
-	
-	public Method setter() {
-	    return setter;
-	}
-	
-	public String name() {
-	    return name;
 	}
 	
 	/**
