@@ -109,7 +109,7 @@ public class PropertiesResultSetWrapper<T extends Results> implements ResultSetW
 		});
 		
 		if (property.getter != null) {
-			handlers.put(property.getter, ResultsMethodHandler.getter(property.name, index));
+			handlers.put(property.getter, ResultsMethodHandler.getter(index, property.name));
 		}
 		
 		if (property.setter != null) {
@@ -172,6 +172,6 @@ public class PropertiesResultSetWrapper<T extends Results> implements ResultSetW
 	 * @return a dynamic proxy implementing the interface
 	 */
 	public T wrap(final ResultSet results) {
-		return ResultsProxyInvoker.proxy(type, results, handlers, factories);
+		return ResultsProxy.proxy(type, results, handlers, factories);
 	}
 }

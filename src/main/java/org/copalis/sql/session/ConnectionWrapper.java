@@ -39,7 +39,7 @@ public interface ConnectionWrapper<X extends Session> {
 	}
 	
 	public class Generic<T extends Session> implements ConnectionWrapper<T> {
-		private final Map<Method, SessionMethod.Binder> methods = new HashMap<Method, SessionMethod.Binder>();
+		private final Map<Method, SessionMethodHandler.Binder> methods = new HashMap<Method, SessionMethodHandler.Binder>();
 		private final Class<T> type;
 		
 		public Generic(Class<T> type, Connection connection) throws SQLException {

@@ -37,7 +37,7 @@ import org.copalis.sql.results.SelectResultSetWrapper;
 
 public enum SessionMethodType {
 	SIMPLE_SELECT {
-		protected SessionMethod.Binder create(Method method, Connection connection) throws SQLException {
+		protected SessionMethodHandler.Binder create(Method method, Connection connection) throws SQLException {
 			final Query query = method.getAnnotation(Query.class);
 			Class<?> ret = method.getReturnType();
 			if (query == null || Results.class.isAssignableFrom(ret)) return null;
@@ -63,7 +63,7 @@ public enum SessionMethodType {
 	},
 	SELECT {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		protected SessionMethod.Binder create(final Method method, Connection connection) throws SQLException {
+		protected SessionMethodHandler.Binder create(final Method method, Connection connection) throws SQLException {
 			final Query query = method.getAnnotation(Query.class);
 			Class<?> ret = method.getReturnType();
 			if (query == null || !query.value().toUpperCase().startsWith("SELECT ")) return null;
@@ -75,7 +75,7 @@ public enum SessionMethodType {
 	},
 	INFERRED_SELECT {
 		@SuppressWarnings("unchecked")
-		protected SessionMethod.Binder create(final Method method, Connection connection) throws SQLException {
+		protected SessionMethodHandler.Binder create(final Method method, Connection connection) throws SQLException {
 			Query query = method.getAnnotation(Query.class);
 			Class<?> ret = method.getReturnType();
 			if (query == null || !Results.class.isAssignableFrom(ret)) return null;
@@ -87,7 +87,7 @@ public enum SessionMethodType {
 		}
 	},
 	UPDATE {
-		protected SessionMethod.Binder create(final Method method, Connection connection) throws SQLException {
+		protected SessionMethodHandler.Binder create(final Method method, Connection connection) throws SQLException {
 			final Update update = method.getAnnotation(Update.class);
 			if (update == null) return null;
 
@@ -103,14 +103,14 @@ public enum SessionMethodType {
 			}
 			final String name = name();
 			
-			return new SessionMethod.Binder() {
-				public SessionMethod bind(Connection connection) throws SQLException {
+			return new SessionMethodHandler.Binder() {
+				public SessionMethodHandler bind(Connection connection) throws SQLException {
 					final PreparedStatement[] stmts = new PreparedStatement[ps.length];
 					for (int i = 0; i < ps.length; i++) {
 						stmts[i] = connection.prepareStatement(ps[i].text(), update.returnGeneratedKey()?
 								Statement.RETURN_GENERATED_KEYS : Statement.NO_GENERATED_KEYS);
 					}
-					return new SessionMethod() {
+					return new SessionMethodHandler() {
 						public Object execute(Object[] args) throws SQLException {
 							int rows = 0;
 							PreparedStatement last = null;
@@ -138,18 +138,18 @@ public enum SessionMethodType {
 		}
 	};
 
-	protected abstract SessionMethod.Binder create(Method method, Connection connection) throws SQLException;
+	protected abstract SessionMethodHandler.Binder create(Method method, Connection connection) throws SQLException;
 	
-	private SessionMethod.Binder queryMethod(final Method method, final Query query,
+	private SessionMethodHandler.Binder queryMethod(final Method method, final Query query,
 			final ParameterizedStatement ps, final ResultSetWrapper<?> wrapper) {
-		return new SessionMethod.Binder() {
-			public SessionMethod bind(Connection connection) throws SQLException {
+		return new SessionMethodHandler.Binder() {
+			public SessionMethodHandler bind(Connection connection) throws SQLException {
 				final PreparedStatement stmt = connection.prepareStatement(
 						ps.text(), query.type(),
 						Results.Updatable.class.isAssignableFrom(method.getReturnType())?
 								ResultSet.CONCUR_UPDATABLE : ResultSet.CONCUR_READ_ONLY);
 				stmt.setFetchSize(query.fetchSize());
-				return new SessionMethod() {
+				return new SessionMethodHandler() {
 					public Object execute(Object[] args) throws SQLException {
 						return wrapper.wrap(ps.setParameters(stmt, args).executeQuery());
 					}
@@ -166,10 +166,10 @@ public enum SessionMethodType {
 		return name();
 	}
 	
-	public static SessionMethod.Binder forMethod(Method method, Connection connection) throws SQLException {
+	public static SessionMethodHandler.Binder forMethod(Method method, Connection connection) throws SQLException {
 		for (SessionMethodType gen : values()) {
 			try {
-				SessionMethod.Binder dm = gen.create(method, connection);
+				SessionMethodHandler.Binder dm = gen.create(method, connection);
 				if (dm != null) return dm;
 			} catch (RuntimeException e) {
 				throw new RuntimeException(gen.name() + ' ' + Name.of(method) + ": " + e.getMessage(), e);

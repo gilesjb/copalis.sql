@@ -29,13 +29,13 @@ import org.copalis.sql.common.Name;
 
 public class SessionProxy implements InvocationHandler, Session {
 	private final Connection connection;
-	private final Map<Method, SessionMethod.Binder> methods;
+	private final Map<Method, SessionMethodHandler.Binder> methods;
 
-	private final Map<Method, SessionMethod> executors = 
-			new HashMap<Method, SessionMethod>();
+	private final Map<Method, SessionMethodHandler> handlers = 
+			new HashMap<Method, SessionMethodHandler>();
 	
 	public static <C extends Session> C proxy(
-			Class<C> type, Map<Method, SessionMethod.Binder> methods, Connection connection) {
+			Class<C> type, Map<Method, SessionMethodHandler.Binder> methods, Connection connection) {
 		return type.cast(Proxy.newProxyInstance(
 				SessionProxy.class.getClassLoader(), new Class<?>[] {type}, new SessionProxy(
 						connection, methods)));
@@ -45,7 +45,7 @@ public class SessionProxy implements InvocationHandler, Session {
 		this(connection, null);
 	}
 	
-	public SessionProxy(Connection connection, Map<Method, SessionMethod.Binder> methods) {
+	public SessionProxy(Connection connection, Map<Method, SessionMethodHandler.Binder> methods) {
 		this.connection = connection;
 		this.methods = methods;
 	}
@@ -54,13 +54,13 @@ public class SessionProxy implements InvocationHandler, Session {
 		if (method.getDeclaringClass().isAssignableFrom(Session.class)) {
 			return method.invoke(this, args);
 		} else {
-			SessionMethod exec = executors.get(method);
+			SessionMethodHandler handler = handlers.get(method);
 			try {
-				if (exec == null) {
-					exec = methods.get(method).bind(connection);
-					executors.put(method, exec);
+				if (handler == null) {
+					handler = methods.get(method).bind(connection);
+					handlers.put(method, handler);
 				}
-				return exec.execute(args);
+				return handler.execute(args);
 			} catch (SQLException e) {
 				throw DataException.wrap("In method: " + Name.of(method), e);
 			}

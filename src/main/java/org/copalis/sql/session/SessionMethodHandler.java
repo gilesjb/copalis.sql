@@ -21,10 +21,10 @@ import java.sql.SQLException;
 /**
  * Handles execution of a user-defined Session method
  */
-public interface SessionMethod {
+public interface SessionMethodHandler {
 	public Object execute(Object[] args) throws SQLException;
 	
 	public interface Binder {
-		SessionMethod bind(Connection connection) throws SQLException;
+		SessionMethodHandler bind(Connection connection) throws SQLException;
 	}
 }

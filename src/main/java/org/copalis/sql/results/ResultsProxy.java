@@ -36,25 +36,25 @@ import org.copalis.sql.common.Name;
  *
  * @author gilesjb
  */
-public class ResultsProxyInvoker implements InvocationHandler, Results, Results.Updatable {
+public class ResultsProxy implements InvocationHandler, Results, Results.Updatable {
 
 	public static <T extends Results> T proxy(Class<T> type, ResultSet results, Map<Method, ResultsMethodHandler> handlers) {
 		Map<Method, ResultsMethodHandler.Factory> factories = Collections.emptyMap();
 		return type.cast(Proxy.newProxyInstance(
-				type.getClassLoader(), new Class<?>[] {type}, new ResultsProxyInvoker(results, handlers, factories)));
+				type.getClassLoader(), new Class<?>[] {type}, new ResultsProxy(results, handlers, factories)));
 	}
 	
 	public static <T extends Results> T proxy(
 			Class<T> type, ResultSet results, Map<Method, ResultsMethodHandler> handlers, Map<Method, ResultsMethodHandler.Factory> factories) {
 		return type.cast(Proxy.newProxyInstance(
-				type.getClassLoader(), new Class<?>[] {type}, new ResultsProxyInvoker(results, handlers, factories)));
+				type.getClassLoader(), new Class<?>[] {type}, new ResultsProxy(results, handlers, factories)));
 	}
 	
 	private final ResultSet results;
 	private final Map<Method, ResultsMethodHandler> handlers, lazy;
 	private final Map<Method, ResultsMethodHandler.Factory> factories;
 	
-	private ResultsProxyInvoker(
+	private ResultsProxy(
 			ResultSet results, Map<Method, ResultsMethodHandler> handlers, Map<Method, ResultsMethodHandler.Factory> factories) {
 		this.results = results;
 		this.handlers = handlers;

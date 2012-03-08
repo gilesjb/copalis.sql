@@ -57,7 +57,7 @@ public class SelectResultSetWrapper<C extends Results> implements ResultSetWrapp
 			property.validateTypes(FieldType.forClassName(meta.getColumnClassName(i)));
 			
 			if (property.getter != null) {
-				handlers.put(property.getter, ResultsMethodHandler.getter(property.name, i));
+				handlers.put(property.getter, ResultsMethodHandler.getter(i, property.name));
 			}
 			
 			if (property.setter != null) {
@@ -67,6 +67,6 @@ public class SelectResultSetWrapper<C extends Results> implements ResultSetWrapp
 	}
 
 	public C wrap(ResultSet results) {
-		return ResultsProxyInvoker.proxy(type, results, handlers);
+		return ResultsProxy.proxy(type, results, handlers);
 	}
 }

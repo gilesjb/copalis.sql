@@ -32,7 +32,7 @@ public abstract class ResultsMethodHandler {
 		ResultsMethodHandler create(ResultSet results);
 	}
 
-	public static ResultsMethodHandler getter(final String name, final int column) {
+	public static ResultsMethodHandler getter(final int column, final String name) {
 	    return new ResultsMethodHandler() {
 	        public Object invoke(ResultSet results, Object proxy, Object[] args) throws SQLException {
 	            return results.getObject(column);
