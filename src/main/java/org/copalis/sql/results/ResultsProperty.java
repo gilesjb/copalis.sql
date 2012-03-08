@@ -43,7 +43,7 @@ import org.copalis.sql.common.Name;
  * 
  * @see org.copalis.sql.Results.As
  */
-public class ResultsProperty {
+public class ResultsProperty implements Comparable<ResultsProperty> {
     
     private static final Set<Class<?>> RESULTS_INTERFACES = 
             new HashSet<Class<?>>(Arrays.asList(Results.INTERFACES));
@@ -162,4 +162,12 @@ public class ResultsProperty {
 		As annot = method.getAnnotation(As.class);
 		return annot != null? annot.value() : method.getName();
 	}
+	
+	@Override public String toString() {
+	    return name;
+	}
+
+    public int compareTo(ResultsProperty o) {
+        return name.compareTo(o.name);
+    }
 }

@@ -30,7 +30,6 @@ import org.copalis.sql.DataException;
 import org.copalis.sql.Results;
 import org.copalis.sql.common.Name;
 
-import com.sun.tools.example.debug.bdi.MethodNotFoundException;
 
 /**
  * A general class for implementing a Results proxy.
@@ -119,7 +118,7 @@ public class ResultsProxyInvoker implements InvocationHandler, Results, Results.
 		}
 	}
 	
-	private Handler handler(Method method) throws MethodNotFoundException {
+	private Handler handler(Method method) throws NoSuchMethodException {
 		if (handlers.containsKey(method)) return handlers.get(method);
 		if (lazy.containsKey(method)) return lazy.get(method);
 		if (factories.containsKey(method)) {
@@ -127,7 +126,7 @@ public class ResultsProxyInvoker implements InvocationHandler, Results, Results.
 			lazy.put(method, handler);
 			return handler;
 		}
-		throw new MethodNotFoundException(Name.of(method));
+		throw new NoSuchMethodException(Name.of(method));
 	}
 	
 	public boolean next() {
@@ -171,7 +170,7 @@ public class ResultsProxyInvoker implements InvocationHandler, Results, Results.
 				text = handler(method).toString(results);
 			} catch (SQLException e) {
 				throw DataException.wrap(e);
-			} catch (MethodNotFoundException e) {
+			} catch (NoSuchMethodException e) {
 				throw new RuntimeException(e);
 			}
 			if (text != null) {
