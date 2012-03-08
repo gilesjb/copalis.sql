@@ -28,7 +28,6 @@ import java.util.Map;
 import org.copalis.sql.DataException;
 import org.copalis.sql.Results;
 import org.copalis.sql.common.FieldType;
-import org.copalis.sql.results.ResultsProxyInvoker.Handler;
 
 /**
  * Maintains information necessary to wrap a <code>ResultSet</code> with a <code>Result</code> interface
@@ -49,8 +48,8 @@ public class PropertiesResultSetWrapper<T extends Results> implements ResultSetW
 	private final int finalIdx;
 	
 	private final Map<Method, PropertiesResultSetWrapper<?>> subProxies = new LinkedHashMap<Method, PropertiesResultSetWrapper<?>>();
-	private final Map<Method, Handler> handlers = new HashMap<Method, Handler>();
-	private final Map<Method, Handler.Factory> factories = new HashMap<Method, Handler.Factory>();
+	private final Map<Method, ResultsMethodHandler> handlers = new HashMap<Method, ResultsMethodHandler>();
+	private final Map<Method, ResultsMethodHandler.Factory> factories = new HashMap<Method, ResultsMethodHandler.Factory>();
 	private final List<Validator> validators = new LinkedList<Validator>();
 	
 	public static <C extends Results> PropertiesResultSetWrapper<C> forType(Class<C> type) {
@@ -76,11 +75,11 @@ public class PropertiesResultSetWrapper<T extends Results> implements ResultSetW
 			@SuppressWarnings({ "rawtypes", "unchecked" })
             final PropertiesResultSetWrapper child = new PropertiesResultSetWrapper(sub.getReturnType(), idx);
 			subProxies.put(sub, child);
-			factories.put(sub, new Handler.Factory() {
-				public Handler create(ResultSet results) {
+			factories.put(sub, new ResultsMethodHandler.Factory() {
+				public ResultsMethodHandler create(ResultSet results) {
 					final Results wrapped = child.wrap(results);
 					
-					return new Handler() {
+					return new ResultsMethodHandler() {
 						public Object invoke(ResultSet results, Object proxy, Object[] args) throws SQLException {
 							return wrapped;
 						}
@@ -110,11 +109,11 @@ public class PropertiesResultSetWrapper<T extends Results> implements ResultSetW
 		});
 		
 		if (property.getter != null) {
-			handlers.put(property.getter, new ResultsProxyInvoker.Getter(property.name, index));
+			handlers.put(property.getter, ResultsMethodHandler.getter(property.name, index));
 		}
 		
 		if (property.setter != null) {
-			handlers.put(property.setter, new ResultsProxyInvoker.Setter(index));
+			handlers.put(property.setter, ResultsMethodHandler.setter(index));
 		}
 	}
 	

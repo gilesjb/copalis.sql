@@ -61,7 +61,7 @@ public class SimpleQueryTest extends TestCase {
 					"ZIP varchar(255))");
 		conn.close();
 		
-		session = connector.as(AddressSession.class).open();
+		session = connector.open(AddressSession.class);
 		session.addr("Smith", "100 Main", "Centerville", "WA", "98000");
 		session.addr("Vasquez", "500 E 1st", "Exopolis", "IL", "55000");
 		session.addr("Ramone", "700 University Way", "Minneapolis", "MN", "22800");

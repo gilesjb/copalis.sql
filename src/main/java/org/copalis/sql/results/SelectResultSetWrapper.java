@@ -24,7 +24,6 @@ import java.util.Map;
 
 import org.copalis.sql.Results;
 import org.copalis.sql.common.FieldType;
-import org.copalis.sql.results.ResultsProxyInvoker.Handler;
 
 /**
  * @author gilesjb
@@ -33,14 +32,14 @@ import org.copalis.sql.results.ResultsProxyInvoker.Handler;
 public class SelectResultSetWrapper<C extends Results> implements ResultSetWrapper<C> {
 	
 	private final Class<C> type;
-	private final Map<Method, Handler> handlers;
+	private final Map<Method, ResultsMethodHandler> handlers;
 	
 	public SelectResultSetWrapper(Class<C> type, ResultSetMetaData meta) throws SQLException {
 		if (ResultsProperty.subResults(type).length > 0) {
 			throw new IllegalArgumentException("Result type must not have qualifier methods");
 		}
 		this.type = type;
-		this.handlers = new HashMap<Method, Handler>();
+		this.handlers = new HashMap<Method, ResultsMethodHandler>();
 		
 		ResultsProperty[] properties = ResultsProperty.properties(type);
 
@@ -58,11 +57,11 @@ public class SelectResultSetWrapper<C extends Results> implements ResultSetWrapp
 			property.validateTypes(FieldType.forClassName(meta.getColumnClassName(i)));
 			
 			if (property.getter != null) {
-				handlers.put(property.getter, new ResultsProxyInvoker.Getter(property.name, i));
+				handlers.put(property.getter, ResultsMethodHandler.getter(property.name, i));
 			}
 			
 			if (property.setter != null) {
-				handlers.put(property.setter, new ResultsProxyInvoker.Setter(i));
+				handlers.put(property.setter, ResultsMethodHandler.setter(i));
 			}
 		}
 	}

@@ -38,71 +38,27 @@ import org.copalis.sql.common.Name;
  */
 public class ResultsProxyInvoker implements InvocationHandler, Results, Results.Updatable {
 
-	public interface Handler {
-		Object invoke(ResultSet results, Object proxy, Object[] args) throws SQLException;
-		String toString(ResultSet results) throws SQLException;
-		
-		public interface Factory {
-			Handler create(ResultSet results);
-		}
-	}
-	
-	public static class Getter implements Handler {
-		private final String name;
-		private final int column;
-		
-		public Getter(String name, int column) {
-			this.name = name;
-			this.column = column;
-		}
-		
-		public Object invoke(ResultSet results, Object proxy, Object[] args) throws SQLException {
-			return results.getObject(column);
-		}
-		
-		public String toString(ResultSet results) throws SQLException {
-			return name + ": " + results.getObject(column);
-		}
-	}
-	
-	public static class Setter implements Handler {
-		private final int column;
-		
-		public Setter(int column) {
-			this.column = column;
-		}
-
-		public Object invoke(ResultSet results, Object proxy, Object[] args) throws SQLException {
-			results.updateObject(column, args[0]);
-			return proxy;
-		}
-		
-		public String toString(ResultSet results) {
-			return null;
-		}
-	}
-	
-	public static <T extends Results> T proxy(Class<T> type, ResultSet results, Map<Method, Handler> handlers) {
-		Map<Method, Handler.Factory> factories = Collections.emptyMap();
+	public static <T extends Results> T proxy(Class<T> type, ResultSet results, Map<Method, ResultsMethodHandler> handlers) {
+		Map<Method, ResultsMethodHandler.Factory> factories = Collections.emptyMap();
 		return type.cast(Proxy.newProxyInstance(
 				type.getClassLoader(), new Class<?>[] {type}, new ResultsProxyInvoker(results, handlers, factories)));
 	}
 	
 	public static <T extends Results> T proxy(
-			Class<T> type, ResultSet results, Map<Method, Handler> handlers, Map<Method, Handler.Factory> factories) {
+			Class<T> type, ResultSet results, Map<Method, ResultsMethodHandler> handlers, Map<Method, ResultsMethodHandler.Factory> factories) {
 		return type.cast(Proxy.newProxyInstance(
 				type.getClassLoader(), new Class<?>[] {type}, new ResultsProxyInvoker(results, handlers, factories)));
 	}
 	
 	private final ResultSet results;
-	private final Map<Method, Handler> handlers, lazy;
-	private final Map<Method, Handler.Factory> factories;
+	private final Map<Method, ResultsMethodHandler> handlers, lazy;
+	private final Map<Method, ResultsMethodHandler.Factory> factories;
 	
 	private ResultsProxyInvoker(
-			ResultSet results, Map<Method, Handler> handlers, Map<Method, Handler.Factory> factories) {
+			ResultSet results, Map<Method, ResultsMethodHandler> handlers, Map<Method, ResultsMethodHandler.Factory> factories) {
 		this.results = results;
 		this.handlers = handlers;
-		this.lazy = new HashMap<Method, Handler>();
+		this.lazy = new HashMap<Method, ResultsMethodHandler>();
 		this.factories = factories;
 	}
 
@@ -118,11 +74,11 @@ public class ResultsProxyInvoker implements InvocationHandler, Results, Results.
 		}
 	}
 	
-	private Handler handler(Method method) throws NoSuchMethodException {
+	private ResultsMethodHandler handler(Method method) throws NoSuchMethodException {
 		if (handlers.containsKey(method)) return handlers.get(method);
 		if (lazy.containsKey(method)) return lazy.get(method);
 		if (factories.containsKey(method)) {
-			Handler handler = factories.get(method).create(results);
+			ResultsMethodHandler handler = factories.get(method).create(results);
 			lazy.put(method, handler);
 			return handler;
 		}
