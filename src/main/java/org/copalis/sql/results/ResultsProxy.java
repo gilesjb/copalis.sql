@@ -29,6 +29,7 @@ import java.util.Set;
 import org.copalis.sql.DataException;
 import org.copalis.sql.Results;
 import org.copalis.sql.common.Name;
+import org.copalis.sql.results.ResultsMethodHandler.Factory;
 
 
 /**
@@ -39,9 +40,9 @@ import org.copalis.sql.common.Name;
 public class ResultsProxy implements InvocationHandler, Results, Results.Updatable {
 
 	public static <T extends Results> T proxy(Class<T> type, ResultSet results, Map<Method, ResultsMethodHandler> handlers) {
-		Map<Method, ResultsMethodHandler.Factory> factories = Collections.emptyMap();
 		return type.cast(Proxy.newProxyInstance(
-				type.getClassLoader(), new Class<?>[] {type}, new ResultsProxy(results, handlers, factories)));
+				type.getClassLoader(), new Class<?>[] {type}, new ResultsProxy(
+				        results, handlers, Collections.<Method, Factory>emptyMap())));
 	}
 	
 	public static <T extends Results> T proxy(
@@ -51,14 +52,13 @@ public class ResultsProxy implements InvocationHandler, Results, Results.Updatab
 	}
 	
 	private final ResultSet results;
-	private final Map<Method, ResultsMethodHandler> handlers, lazy;
+	private final Map<Method, ResultsMethodHandler> handlers;
 	private final Map<Method, ResultsMethodHandler.Factory> factories;
 	
 	private ResultsProxy(
 			ResultSet results, Map<Method, ResultsMethodHandler> handlers, Map<Method, ResultsMethodHandler.Factory> factories) {
 		this.results = results;
-		this.handlers = handlers;
-		this.lazy = new HashMap<Method, ResultsMethodHandler>();
+		this.handlers = new HashMap<Method, ResultsMethodHandler>(handlers);
 		this.factories = factories;
 	}
 
@@ -76,10 +76,9 @@ public class ResultsProxy implements InvocationHandler, Results, Results.Updatab
 	
 	private ResultsMethodHandler handler(Method method) throws NoSuchMethodException {
 		if (handlers.containsKey(method)) return handlers.get(method);
-		if (lazy.containsKey(method)) return lazy.get(method);
 		if (factories.containsKey(method)) {
 			ResultsMethodHandler handler = factories.get(method).create(results);
-			lazy.put(method, handler);
+			handlers.put(method, handler);
 			return handler;
 		}
 		throw new NoSuchMethodException(Name.of(method));
