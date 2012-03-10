@@ -16,6 +16,8 @@
 package org.copalis.sql.results;
 
 import java.lang.reflect.Method;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -134,6 +136,38 @@ public class ResultsProperty implements Comparable<ResultsProperty> {
 		}
 	}
 	
+    /**
+     * Adds {@link ResultsMethodHander}s for this property to a Map
+     * @param handlers map from methods to handlers
+     * @param index a parameter index
+     */
+    public void createMethodHandlers(Map<Method, ResultsMethodHandler> handlers, final int index) {
+        if (getter != null) {
+            handlers.put(getter, new ResultsMethodHandler() {
+                public Object invoke(ResultSet results, Object proxy, Object[] args) throws SQLException {
+                    return results.getObject(index);
+                }
+                
+                public String toString(ResultSet results) throws SQLException {
+                    return name + ": " + results.getObject(index);
+                }
+            });
+        }
+
+        if (setter != null) {
+            handlers.put(setter, new ResultsMethodHandler() {
+                public Object invoke(ResultSet results, Object proxy, Object[] args) throws SQLException {
+                    results.updateObject(index, args[0]);
+                    return proxy;
+                }
+                
+                public String toString(ResultSet results) {
+                    return null;
+                }
+            });
+        }
+    }
+    
 	public static ResultsProperty[] properties(Class<? extends Results> type) {
 		Map<String, ResultsProperty> map = new HashMap<String, ResultsProperty>();
 		

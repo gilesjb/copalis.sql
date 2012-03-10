@@ -108,13 +108,7 @@ public class PropertiesResultSetWrapper<T extends Results> implements ResultSetW
 			}
 		});
 		
-		if (property.getter != null) {
-			handlers.put(property.getter, ResultsMethodHandler.getter(index, property.name));
-		}
-		
-		if (property.setter != null) {
-			handlers.put(property.setter, ResultsMethodHandler.setter(index));
-		}
+		property.createMethodHandlers(handlers, index);
 	}
 	
 	/**

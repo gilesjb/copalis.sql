@@ -23,37 +23,12 @@ import java.sql.SQLException;
  *
  * @author gilesjb
  */
-public abstract class ResultsMethodHandler {
+public interface ResultsMethodHandler {
 
-    public abstract Object invoke(ResultSet results, Object proxy, Object[] args) throws SQLException;
-	public abstract String toString(ResultSet results) throws SQLException;
+    Object invoke(ResultSet results, Object proxy, Object[] args) throws SQLException;
+	String toString(ResultSet results) throws SQLException;
 	
 	public interface Factory {
 		ResultsMethodHandler create(ResultSet results);
-	}
-
-	public static ResultsMethodHandler getter(final int column, final String name) {
-	    return new ResultsMethodHandler() {
-	        public Object invoke(ResultSet results, Object proxy, Object[] args) throws SQLException {
-	            return results.getObject(column);
-	        }
-	        
-	        public String toString(ResultSet results) throws SQLException {
-	            return name + ": " + results.getObject(column);
-	        }
-	    };
-	}
-	
-	public static ResultsMethodHandler setter(final int column) {
-	    return new ResultsMethodHandler() {
-	        public Object invoke(ResultSet results, Object proxy, Object[] args) throws SQLException {
-	            results.updateObject(column, args[0]);
-	            return proxy;
-	        }
-	        
-	        public String toString(ResultSet results) {
-	            return null;
-	        }
-	    };
 	}
 }

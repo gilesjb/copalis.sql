@@ -55,14 +55,7 @@ public class SelectResultSetWrapper<C extends Results> implements ResultSetWrapp
 			}
 			
 			property.validateTypes(FieldType.forClassName(meta.getColumnClassName(i)));
-			
-			if (property.getter != null) {
-				handlers.put(property.getter, ResultsMethodHandler.getter(i, property.name));
-			}
-			
-			if (property.setter != null) {
-				handlers.put(property.setter, ResultsMethodHandler.setter(i));
-			}
+			property.createMethodHandlers(handlers, i);
 		}
 	}
 
