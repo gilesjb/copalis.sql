@@ -17,8 +17,8 @@ and there was a toolkit that would generate an implementation for you?
 
 ### A Less Simple Query
 
-When we perform a SQL SELECT,
-we may get more than one record,
+When we query a databse,
+we might want to get more than one record,
 or read multiple fields.
 Define an interface with accessors for the field values,
 and return it from the query method:
